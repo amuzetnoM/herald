@@ -1,0 +1,107 @@
+{
+  "mt5": {
+    "login": 12345678,
+    "password": "your_password",
+    "server": "YourBroker-Demo",
+    "timeout": 60000,
+    "path": "C:\\Program Files\\MetaTrader 5\\terminal64.exe"
+  },
+  "risk": {
+    "max_position_size": 1.0,
+    "default_position_size": 0.1,
+    "max_daily_loss": 500.0,
+    "max_positions_per_symbol": 1,
+    "max_total_positions": 3,
+    "position_size_pct": 2.0,
+    "use_kelly_sizing": false,
+    "emergency_stop_loss_pct": 5.0,
+    "circuit_breaker_enabled": true,
+    "circuit_breaker_threshold_pct": 3.0
+  },
+  "trading": {
+    "symbol": "EURUSD",
+    "timeframe": "TIMEFRAME_H1",
+    "poll_interval": 60,
+    "lookback_bars": 500
+  },
+  "strategy": {
+    "type": "sma_crossover",
+    "params": {
+      "fast_period": 10,
+      "slow_period": 30,
+      "symbol": "EURUSD"
+    }
+  },
+  "indicators": [
+    {
+      "type": "rsi",
+      "params": {
+        "period": 14
+      }
+    },
+    {
+      "type": "macd",
+      "params": {
+        "fast_period": 12,
+        "slow_period": 26,
+        "signal_period": 9
+      }
+    },
+    {
+      "type": "bollinger",
+      "params": {
+        "period": 20,
+        "std_dev": 2.0
+      }
+    },
+    {
+      "type": "adx",
+      "params": {
+        "period": 14
+      }
+    }
+  ],
+  "exit_strategies": [
+    {
+      "type": "adverse_movement",
+      "enabled": true,
+      "params": {
+        "movement_threshold_pct": 1.0,
+        "time_window_seconds": 60,
+        "consecutive_moves_required": 3
+      }
+    },
+    {
+      "type": "time_based",
+      "enabled": true,
+      "params": {
+        "max_hold_hours": 24.0,
+        "weekend_protection": true,
+        "friday_close_time": "16:00",
+        "day_trading_mode": false
+      }
+    },
+    {
+      "type": "profit_target",
+      "enabled": true,
+      "params": {
+        "target_pct": 2.0,
+        "partial_close_enabled": false,
+        "risk_reward_ratio": 2.0
+      }
+    },
+    {
+      "type": "trailing_stop",
+      "enabled": true,
+      "params": {
+        "atr_multiplier": 2.0,
+        "activation_profit_pct": 0.5,
+        "min_stop_distance_pips": 10.0
+      }
+    }
+  ],
+  "database": {
+    "path": "herald.db"
+  },
+  "cache_enabled": true
+}

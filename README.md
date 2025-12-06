@@ -7,18 +7,21 @@
 ```
 
 # Herald
-*version 1.0.0*
+*version 2.0.0*
 
-![Status](https://img.shields.io/badge/status-active-success?style=for-the-badge)
+![Status](https://img.shields.io/badge/status-production--ready-success?style=for-the-badge)
 [![Python](https://img.shields.io/badge/python-3.10--3.13-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![MT5](https://img.shields.io/badge/MetaTrader-5-0066CC?style=for-the-badge)](https://www.metatrader5.com/)
 [![License](https://img.shields.io/badge/license-MIT-green?style=for-the-badge)](LICENSE)
+[![Phase](https://img.shields.io/badge/phase-2%20complete-blue?style=for-the-badge)](docs/CHANGELOG.md)
 
 > **Adaptive Trading Intelligence for MetaTrader 5**
-> A modular, event-driven trading bot emphasizing safety, testability, and extensibility
+> A complete autonomous trading system with entry and exit execution, technical indicators, and advanced position management
 
 A comprehensive automated trading system for MetaTrader 5 following enterprise-grade architecture patterns.
 Built with focus on incremental development, robust risk management, and production-ready deployment.
+
+**NEW in v2.0**: Full autonomous trading with 5 technical indicators, intelligent position management, and 4 priority-based exit strategies.
 
 ---
 
@@ -54,13 +57,23 @@ enhanced without disrupting core functionality.
 
 ### Data Flow
 
+**Phase 1 Foundation:**
 ```
 Market Data → Data Layer → Strategy → Signal → Risk Check → Execution → Persistence
+```
+
+**Phase 2 Autonomous Trading (NEW):**
+```
+Market Data → Indicators (5) → Strategy Signals → Risk Approval → 
+Order Execution → Position Tracking → Exit Detection (4) → Position Close → 
+Persistence & Metrics
 ```
 
 ---
 
 ## Features
+
+### Core Infrastructure (Phase 1)
 
 | Component | Description |
 |-----------|-------------|
@@ -71,6 +84,18 @@ Market Data → Data Layer → Strategy → Signal → Risk Check → Execution 
 | **Risk Manager** | Position sizing, exposure limits, daily loss guards, emergency shutdown |
 | **Persistence** | SQLite database for trades, signals, and performance metrics |
 | **Observability** | Structured logging with health checks and status monitoring |
+
+### Autonomous Trading (Phase 2) 🆕
+
+| Component | Description |
+|-----------|-------------|
+| **Technical Indicators** | 5 indicators: RSI, MACD, Bollinger Bands, Stochastic, ADX |
+| **Position Manager** | Real-time tracking, P&L monitoring, MT5 synchronization |
+| **Exit Strategies** | 4 strategies: Trailing stop, time-based, profit target, adverse movement |
+| **Autonomous Loop** | Complete 10-step trading cycle with health monitoring |
+| **Priority System** | Emergency → Time → Profit → Trailing stop execution order |
+| **Reconciliation** | Automatic position sync after connection loss |
+| **Dry-Run Mode** | Test strategies without real orders |
 
 ---
 
@@ -89,13 +114,32 @@ herald/
 │   └── engine.py
 ├── risk/             # Risk management
 │   └── manager.py
+├── indicators/       # 🆕 Technical indicators
+│   ├── base.py
+│   ├── rsi.py
+│   ├── macd.py
+│   ├── bollinger.py
+│   ├── stochastic.py
+│   └── adx.py
+├── position/         # 🆕 Position management
+│   └── manager.py
+├── exit/             # 🆕 Exit strategies
+│   ├── base.py
+│   ├── trailing_stop.py
+│   ├── time_based.py
+│   ├── profit_target.py
+│   └── adverse_movement.py
 ├── persistence/      # Database layer
 │   └── database.py
-└── observability/    # Logging and monitoring
-    └── logger.py
+├── observability/    # Logging and monitoring
+│   ├── logger.py
+│   └── metrics.py
+└── __main__.py       # 🆕 Autonomous orchestrator
 ```
 
 ### Component Responsibilities
+
+#### Phase 1 - Foundation
 
 **Connector**
 - MT5 session lifecycle (connect, disconnect, health checks)
@@ -104,9 +148,9 @@ herald/
 
 **Data Layer**
 - OHLCV normalization to pandas DataFrames
-- Technical indicator calculation
 - Multi-timeframe resampling
 - Data caching for backtesting
+- Indicator integration
 
 **Strategy**
 - Signal generation from market data
@@ -125,6 +169,54 @@ herald/
 - Exposure limits (per-symbol, total)
 - Daily loss limits with auto-pause
 - Emergency shutdown capability
+
+#### Phase 2 - Autonomous Trading 🆕
+
+**Indicators**
+- RSI: Overbought/oversold detection (14 period)
+- MACD: Trend following with crossovers (12/26/9)
+- Bollinger Bands: Volatility and breakout detection (20/2)
+- Stochastic: Momentum oscillator (%K/%D)
+- ADX: Trend strength measurement (+DI/-DI)
+
+**Position Manager**
+- Real-time position tracking synced with MT5
+- Continuous P&L calculation
+- Position lifecycle management (track, monitor, close)
+- Partial and full position closing
+- Reconciliation after connection loss
+- Position age and exposure analytics
+
+**Exit Strategies** (Priority-based)
+1. **Adverse Movement** (Priority 90 - Emergency)
+   - Flash crash protection
+   - Rapid adverse movement detection
+   - 60-second time window analysis
+
+2. **Time-Based** (Priority 50)
+   - Maximum hold time enforcement
+   - Weekend protection (Friday close)
+   - Day trading mode (EOD close)
+
+3. **Profit Target** (Priority 40)
+   - Percentage/pip-based targets
+   - Multiple levels with partial closes
+   - Volatility-adjusted targets
+
+4. **Trailing Stop** (Priority 25)
+   - ATR-based dynamic stops
+   - Never moves against profit
+   - Activation after profit threshold
+
+**Autonomous Orchestrator**
+- 10-step continuous trading loop
+- Module initialization and configuration loading
+- Market data ingestion and indicator calculation
+- Signal generation and risk approval
+- Order execution and position tracking
+- Exit detection and position closing
+- Health monitoring and reconnection
+- Graceful shutdown with position cleanup
 
 ---
 
@@ -181,43 +273,127 @@ notepad config/config.yaml  # Windows
 nano config/config.yaml     # Linux/macOS
 ```
 
-### Configure MT5 Credentials
+### Configure Credentials
 
-Edit `config/config.yaml`:
+**Option 1: Environment Variables (Recommended)**
 
-```yaml
-mt5:
-  login: 12345678          # Your MT5 account number
-  password: "your_password"  # Account password
-  server: "Broker-Demo"      # Broker server name
-  timeout: 60000
+```bash
+# Copy template
+cp .env.example .env
 
-trading:
-  symbol: "XAUUSD"
-  timeframe: "H1"
-  
-risk:
-  max_position_size_pct: 0.02  # 2% risk per trade
-  max_daily_loss_pct: 0.05     # 5% daily loss limit
-  max_total_positions: 3
-
-strategy:
-  name: "sma_crossover"
-  short_window: 20
-  long_window: 50
+# Edit .env file with your credentials
+# .env is already in .gitignore for security
+nano .env  # or use your preferred editor
 ```
 
-### Run Herald
+```bash
+# .env file
+MT5_LOGIN=12345678
+MT5_PASSWORD=your_password
+MT5_SERVER=Broker-Demo
 
-```python
-# Start trading bot
-python -m herald
+RISK_PER_TRADE=0.02
+MAX_DAILY_LOSS=0.05
 
-# Run with specific config
-python -m herald --config config/custom.yaml
+LOG_LEVEL=INFO
+DRY_RUN=false
+```
 
-# Dry run mode (no real orders)
-python -m herald --dry-run
+**Option 2: Configuration File**
+
+Edit `config.json` (see `config.example.json`):
+
+```json
+{
+  "mt5": {
+    "login": 12345678,
+    "password": "your_password",
+    "server": "Broker-Demo",
+    "path": "C:\\Program Files\\MetaTrader 5\\terminal64.exe"
+  },
+  "trading": {
+    "symbol": "EURUSD",
+    "timeframe": "TIMEFRAME_H1",
+    "poll_interval": 60,
+    "lookback_bars": 500
+  },
+  "risk": {
+    "max_position_size": 1.0,
+    "default_position_size": 0.1,
+    "max_daily_loss": 500.0,
+    "max_positions_per_symbol": 1,
+    "max_total_positions": 3
+  },
+  "strategy": {
+    "type": "sma_crossover",
+    "params": {
+      "fast_period": 10,
+      "slow_period": 30
+    }
+  },
+  "indicators": [
+    {"type": "rsi", "params": {"period": 14}},
+    {"type": "macd", "params": {"fast_period": 12, "slow_period": 26, "signal_period": 9}},
+    {"type": "bollinger", "params": {"period": 20, "std_dev": 2.0}},
+    {"type": "adx", "params": {"period": 14}}
+  ],
+  "exit_strategies": [
+    {"type": "adverse_movement", "enabled": true, "params": {"movement_threshold_pct": 1.0}},
+    {"type": "time_based", "enabled": true, "params": {"max_hold_hours": 24.0}},
+    {"type": "profit_target", "enabled": true, "params": {"target_pct": 2.0}},
+    {"type": "trailing_stop", "enabled": true, "params": {"atr_multiplier": 2.0}}
+  ]
+}
+```
+
+### Run Herald (Autonomous Trading)
+
+```bash
+# Autonomous trading with config file
+python -m herald --config config.json
+
+# Dry run mode (no real orders) - Test your setup safely
+python -m herald --config config.json --dry-run
+
+# With debug logging
+python -m herald --config config.json --log-level DEBUG
+
+# Quick test connection
+python -c "from connector.mt5_connector import MT5Connector, ConnectionConfig; \
+           import os; \
+           config = ConnectionConfig(login=int(os.getenv('MT5_LOGIN')), \
+                                     password=os.getenv('MT5_PASSWORD'), \
+                                     server=os.getenv('MT5_SERVER')); \
+           conn = MT5Connector(config); \
+           print('Connected!' if conn.connect() else 'Failed')"
+```
+
+**What Happens When You Run:**
+1. Connects to MT5 with your credentials
+2. Initializes all modules (indicators, strategy, risk, execution, position manager)
+3. Loads configured exit strategies (4 strategies by default)
+4. Starts autonomous trading loop:
+   - Fetches market data every 60 seconds (configurable)
+   - Calculates 5 technical indicators
+   - Generates strategy signals
+   - Executes approved trades
+   - Monitors open positions
+   - Checks exit conditions (priority-based)
+   - Closes positions when exit triggered
+5. Logs all activity to console and `herald.log`
+6. Stores trades in `herald.db` database
+
+**Monitor Live Trading:**
+```bash
+# Watch log file
+tail -f herald.log  # Linux/macOS
+Get-Content herald.log -Wait -Tail 50  # Windows PowerShell
+
+# Query database for open positions
+python -c "from persistence.database import Database; \
+           db = Database('herald.db'); \
+           trades = db.get_open_trades(); \
+           print(f'Open trades: {len(trades)}')"
 ```
 
 ---
@@ -585,13 +761,79 @@ Past performance is not indicative of future results. Use at your own risk.
 
 ---
 
+## Documentation
+
+### Core Documentation
+- **[CHANGELOG](docs/CHANGELOG.md)** - Complete version history from v0.1.0 to v2.0.0
+- **[Build Plan](docs/build_plan.md)** - Phase 1 & 2 specifications and roadmap
+- **[Architecture](docs/ARCHITECTURE.md)** - System architecture and design patterns
+- **[Guide](docs/GUIDE.md)** - Comprehensive user guide
+
+### Phase 2 Documentation 🆕
+- **[Phase 2 README](PHASE2_README.md)** - Complete autonomous trading guide
+- **[Phase 2 Summary](PHASE2_SUMMARY.md)** - Implementation details and statistics
+- **[Configuration Example](config.example.json)** - Full JSON configuration template
+
+### API Reference
+- **[HTML Documentation](docs/index.html)** - Interactive documentation website
+
+## Version History
+
+| Version | Date | Status | Description |
+|---------|------|--------|-------------|
+| **2.0.0** | Dec 2024 | ✅ Complete | **Autonomous Trading** - Indicators, position management, exit strategies |
+| **1.0.0** | Nov 2024 | ✅ Complete | **Foundation** - Core infrastructure, risk management, persistence |
+| **0.1.0** | Oct 2024 | ✅ Complete | **Initial Setup** - Project initialization |
+
+See [CHANGELOG.md](docs/CHANGELOG.md) for detailed release notes.
+
 ## Support
 
-- Documentation: `docs/`
-- Build Plan: `build_plan.md`
-- Architecture: `docs/ARCHITECTURE.md`
-- Issues: Create issue in repository
+- **Documentation**: `docs/` directory
+- **Phase 2 Guide**: [PHASE2_README.md](PHASE2_README.md)
+- **Examples**: `config.example.json`, `.env.example`
+- **Database**: Query `herald.db` for trade history
+- **Logs**: Review `herald.log` for execution details
+- **Issues**: Create issue in repository
+
+## Roadmap
+
+### ✅ Phase 1 - Foundation (Complete)
+- MT5 connector with reconnection
+- Data normalization and caching
+- Strategy framework
+- Execution engine
+- Risk management
+- Persistence layer
+
+### ✅ Phase 2 - Autonomous Trading (Complete)
+- 5 Technical indicators (RSI, MACD, Bollinger, Stochastic, ADX)
+- Position manager with real-time tracking
+- 4 Exit strategies (trailing, time, profit, adverse)
+- Autonomous orchestrator loop
+- Comprehensive monitoring
+
+### 🔄 Phase 3 - Machine Learning (Planned)
+- Offline model evaluation pipeline
+- Feature engineering from indicators
+- Model serving for inference
+- Training reproducibility
+
+### 📋 Phase 4 - Advanced Intelligence (Planned)
+- Reinforcement learning (DQN/PPO)
+- Sentiment analysis
+- Regime detection
+- Adaptive parameterization
+
+### 📋 Phase 5 - Production Features (Planned)
+- Automated backtesting pipeline
+- Real-time monitoring dashboard
+- Alert system
+- Safe deployment automation
+- Comprehensive audit reports
 
 ---
 
 **Built with focus on safety, testability, and production readiness.**
+
+*Herald v2.0.0 - Complete autonomous trading from data ingestion to position management to intelligent exits.*

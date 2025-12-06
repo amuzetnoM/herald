@@ -1,0 +1,552 @@
+# Changelog
+
+All notable changes to the Herald Adaptive Trading Intelligence project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+---
+
+## [Unreleased]
+
+### Added
+- Comprehensive testing suite for all modules
+- Real-time monitoring dashboard
+- Multi-symbol trading support
+- Strategy ensemble capabilities
+
+---
+
+## [2.0.0] - 2024-12-06
+
+### Added - Phase 2: Autonomous Trading Execution
+
+#### Indicator Library (`indicators/`)
+- **Base Indicator Class** (`base.py`)
+  - Abstract `Indicator` class with `calculate()`, `reset()`, `state()` methods
+  - Data validation for OHLCV format
+  - Thread-safe indicator state management
+  - Metadata enrichment for signals
+
+- **RSI Indicator** (`rsi.py`)
+  - Relative Strength Index calculation with EMA smoothing
+  - Configurable period (default: 14)
+  - Overbought/oversold detection (70/30 thresholds)
+  - Signal generation (BUY/SELL/NEUTRAL)
+
+- **MACD Indicator** (`macd.py`)
+  - Moving Average Convergence Divergence calculation
+  - Fast EMA (12), Slow EMA (26), Signal line (9)
+  - Histogram calculation
+  - Bullish/bearish crossover detection
+
+- **Bollinger Bands Indicator** (`bollinger.py`)
+  - Upper, middle (SMA), and lower band calculation
+  - Configurable period (20) and standard deviation (2.0)
+  - Band width and %B calculation
+  - Volatility state detection
+
+- **Stochastic Oscillator** (`stochastic.py`)
+  - %K and %D line calculation with smoothing
+  - Configurable %K period (14) and %D period (3)
+  - Overbought/oversold detection (80/20 thresholds)
+  - Crossover signal detection in extreme zones
+
+- **ADX Indicator** (`adx.py`)
+  - Average Directional Index calculation
+  - True Range and Directional Movement computation
+  - +DI and -DI calculation
+  - Trend strength detection (>25 trending, <20 ranging)
+  - Trend direction identification
+
+#### Position Management (`position/`)
+- **PositionManager Class** (`manager.py`)
+  - Real-time position tracking synchronized with MT5
+  - Continuous P&L calculation and monitoring
+  - Position lifecycle management (open, monitor, close)
+  - Partial and full position closing
+  - Emergency "close all" functionality
+  - Position reconciliation after connection loss
+  - Position age tracking (seconds/hours)
+  - Unrealized and realized P&L tracking
+  - Detailed position analytics and statistics
+  - Integration with ExecutionEngine and RiskManager
+
+- **PositionInfo Dataclass**
+  - 18 fields including ticket, symbol, side, volume
+  - Open and current prices, timestamps
+  - P&L calculations (unrealized, realized, commission, swap)
+  - Stop loss and take profit levels
+  - Helper methods: `get_age_hours()`, `get_pnl_pips()`
+
+#### Exit Strategy Engine (`exit/`)
+- **Base Exit Strategy** (`base.py`)
+  - Abstract `ExitStrategy` class with priority system
+  - Priority-based execution (0-100 scale)
+  - Enable/disable functionality per strategy
+  - State management and reset capabilities
+  - `should_exit()` method returning `ExitSignal`
+
+- **ExitSignal Dataclass**
+  - Ticket, reason, price, timestamp
+  - Strategy name and confidence level
+  - Partial volume support for scaled exits
+  - Metadata dictionary for additional context
+
+- **Trailing Stop Strategy** (`trailing_stop.py`)
+  - ATR-based dynamic trailing stop distance
+  - Activation after minimum profit threshold
+  - Never moves stop against profit direction
+  - Adapts to volatility changes
+  - Configurable: ATR multiplier, activation profit, min distance
+  - Priority: 25 (low - let profits run)
+
+- **Time-Based Exit Strategy** (`time_based.py`)
+  - Maximum hold time enforcement (configurable hours)
+  - Weekend protection (Friday close before market close)
+  - Day trading mode (EOD position closing)
+  - Session-aware exit timing
+  - Configurable: max hold time, session close offset, EOD time
+  - Priority: 50 (medium)
+
+- **Profit Target Exit Strategy** (`profit_target.py`)
+  - Percentage-based and pip-based profit targets
+  - Multiple target levels with partial closes
+  - Risk/reward ratio enforcement
+  - Volatility-adjusted targets (ATR scaling)
+  - Target tracking per position
+  - Configurable: target %, target pips, partial close levels
+  - Priority: 40 (medium)
+
+- **Adverse Movement Exit Strategy** (`adverse_movement.py`)
+  - Rapid adverse price movement detection
+  - Flash crash protection mechanism
+  - Time window analysis (default 60 seconds)
+  - Consecutive adverse move requirement
+  - Volatility filter (ignore during known high volatility)
+  - Cooldown period after exit
+  - Configurable: movement threshold, time window, consecutive moves
+  - Priority: 90 (critical - emergency exit)
+
+#### Autonomous Orchestrator (`__main__.py`)
+- **Complete 10-Step Trading Loop**
+  1. Module initialization (all Phase 1 + Phase 2 components)
+  2. Indicator and strategy loading from configuration
+  3. MT5 connection with health check
+  4. Market data ingestion (configurable timeframe and lookback)
+  5. Technical indicator calculation (all 5 indicators)
+  6. Strategy signal generation from enriched data
+  7. Entry signal processing (risk approval → execution → tracking)
+  8. Position monitoring (continuous P&L updates from MT5)
+  9. Exit detection (priority-based strategy evaluation)
+  10. Health monitoring (connection check, reconnection, reconciliation)
+
+- **Safeguards and Recovery**
+  - Graceful shutdown with position closing
+  - Connection loss detection and automatic reconnection
+  - Position reconciliation after reconnect
+  - Exception handling (no crash on single error)
+  - Signal handlers (SIGINT, SIGTERM)
+  - Dry-run mode support (no real orders)
+  - Comprehensive logging at all stages
+
+- **Configuration Management**
+  - JSON configuration file loading
+  - Command-line argument parsing (--config, --log-level, --dry-run)
+  - Module loading (indicators, strategy, exit strategies)
+  - Dynamic timeframe and symbol configuration
+
+#### Documentation
+- **Phase 2 README** (`PHASE2_README.md`)
+  - Complete Phase 2 overview and architecture
+  - Quick start guide with configuration examples
+  - Module documentation with code samples
+  - Configuration reference
+  - Database schema documentation
+  - Performance monitoring guide
+  - Troubleshooting section
+
+- **Phase 2 Summary** (`PHASE2_SUMMARY.md`)
+  - Detailed implementation statistics
+  - Module-by-module breakdown
+  - Code quality metrics
+  - Integration verification
+  - Performance characteristics
+  - Deployment readiness checklist
+
+- **Configuration Example** (`config.example.json`)
+  - Complete JSON configuration template
+  - MT5 connection settings
+  - Risk management parameters
+  - Trading configuration (symbol, timeframe, polling)
+  - Indicator configurations (all 5 indicators)
+  - Exit strategy configurations (all 4 strategies)
+  - Database and cache settings
+
+#### Build Plan Updates
+- Phase 2 marked as **COMPLETE** in `docs/build_plan.md`
+- Comprehensive implementation checklist
+- Verification details for all components
+- Integration status confirmed
+- Quality standards verification
+
+### Changed
+- **Main Entry Point** (`__main__.py`)
+  - Completely rewritten for autonomous trading
+  - Integrated all Phase 2 modules
+  - Added comprehensive error handling
+  - Implemented full trading loop
+
+### Technical Details
+- **Total Lines of Code**: ~4,130 lines (Phase 2 only)
+- **New Modules**: 17 files created
+- **Updated Modules**: 2 files modified
+- **Data Flow**: Complete end-to-end autonomous trading pipeline
+- **Quality**: Production-ready, no stubs or placeholders
+
+---
+
+## [1.0.0] - 2024-11-15
+
+### Added - Phase 1: Foundation Infrastructure
+
+#### Core Architecture
+- **Project Structure**
+  - Modular architecture with clear separation of concerns
+  - Single responsibility principle throughout
+  - Event-driven design pattern
+  - Pluggable component architecture
+
+#### MT5 Connector (`connector/`)
+- **MT5Connector Class** (`mt5_connector.py`)
+  - Connection management with automatic reconnection
+  - Session health monitoring
+  - Rate limiting to prevent API throttling
+  - Retry logic with exponential backoff
+  - Account information retrieval
+  - Market data fetching (OHLCV bars)
+  - Order placement and management
+  - Position querying
+  - Exception handling and error consolidation
+
+- **ConnectionConfig Dataclass**
+  - Login, password, server configuration
+  - Timeout settings
+  - MT5 installation path
+  - Comprehensive validation
+
+#### Data Layer (`data/`)
+- **DataLayer Class** (`layer.py`)
+  - OHLCV data normalization to pandas DataFrame
+  - Timestamp indexing
+  - Data validation and cleaning
+  - Caching layer for backtesting efficiency
+  - Resampling capabilities
+  - Symbol metadata management
+
+- **BarData Dataclass**
+  - Standardized OHLCV structure
+  - Timestamp, symbol, timeframe
+  - Volume and tick volume
+  - Spread information
+
+#### Strategy Engine (`strategy/`)
+- **Base Strategy Interface** (`base.py`)
+  - Abstract `Strategy` class
+  - `on_bar()` and `on_tick()` event handlers
+  - Signal generation interface
+  - Strategy configuration and state management
+  - Pluggable strategy architecture
+
+- **Signal Dataclass**
+  - Signal ID, timestamp, symbol
+  - Signal type (LONG, SHORT, CLOSE, NEUTRAL)
+  - Confidence level (0.0 to 1.0)
+  - Stop loss and take profit levels
+  - Signal reason and metadata
+
+- **SignalType Enum**
+  - LONG, SHORT, CLOSE, NEUTRAL states
+
+- **SMA Crossover Strategy** (`sma_crossover.py`)
+  - Fast and slow SMA calculation
+  - Crossover detection (golden cross, death cross)
+  - Signal generation with confidence scoring
+  - Configurable periods (default: 10/30)
+  - Example implementation for testing
+
+#### Execution Engine (`execution/`)
+- **ExecutionEngine Class** (`engine.py`)
+  - Market and limit order support
+  - Idempotent order submission
+  - Partial fill handling
+  - Order status tracking
+  - Integration with MT5Connector
+  - External order reconciliation
+  - Comprehensive error handling
+
+- **OrderRequest Dataclass**
+  - Signal ID, symbol, side (BUY/SELL)
+  - Volume, order type (MARKET/LIMIT)
+  - Price, stop loss, take profit
+  - Deviation tolerance
+  - Magic number for order identification
+  - Comment field
+
+- **ExecutionResult Dataclass**
+  - Order ID, status (PLACED, FILLED, REJECTED, etc.)
+  - Fill price, filled volume
+  - Request and fill timestamps
+  - Commission and swap
+  - Message and error details
+
+- **OrderStatus Enum**
+  - PLACED, FILLED, PARTIALLY_FILLED, REJECTED, CANCELLED, ERROR
+
+- **OrderType Enum**
+  - MARKET, LIMIT, STOP, STOP_LIMIT
+
+#### Risk Management (`risk/`)
+- **RiskManager Class** (`manager.py`)
+  - Position sizing (fixed lots, percentage-based, Kelly criterion)
+  - Maximum position size enforcement
+  - Per-symbol position limits
+  - Total position limits
+  - Daily loss tracking with auto-reset
+  - Emergency stop loss percentage
+  - Circuit breaker mechanism
+  - Daily P&L monitoring
+  - Trade result recording
+
+- **RiskLimits Dataclass**
+  - Maximum position size
+  - Default position size
+  - Maximum daily loss
+  - Max positions per symbol
+  - Max total positions
+  - Position size percentage
+  - Kelly sizing option
+  - Emergency stop loss percentage
+  - Circuit breaker settings
+
+#### Persistence Layer (`persistence/`)
+- **Database Class** (`database.py`)
+  - SQLite database with full schema
+  - Trades table with entry/exit tracking
+  - Signals table with execution status
+  - Metrics table for performance tracking
+  - Indexed queries for fast lookups
+  - Connection pooling
+  - Transaction management
+
+- **TradeRecord Dataclass**
+  - 15 fields including signal_id, order_id
+  - Symbol, side, entry/exit prices
+  - Volume, stop loss, take profit
+  - Timestamps (entry, exit)
+  - P&L (profit, commission, swap)
+  - Exit reason, metadata
+
+- **SignalRecord Dataclass**
+  - 13 fields including timestamp, symbol, side
+  - Confidence, price, stop loss, take profit
+  - Strategy name, metadata
+  - Execution status and timestamp
+  - Rejection reason
+
+#### Observability (`observability/`)
+- **Logger Module** (`logger.py`)
+  - Structured logging setup
+  - JSON and human-readable formats
+  - Console and file handlers
+  - Configurable log levels
+  - Log rotation support
+  - Context-rich log messages
+
+- **Metrics Collector** (`metrics.py`)
+  - Performance metrics tracking
+  - Win rate calculation
+  - Profit factor computation
+  - Sharpe ratio calculation
+  - Maximum drawdown tracking (absolute and percentage)
+  - Equity curve tracking
+  - Average win/loss statistics
+  - Trade count and distribution
+
+- **PerformanceMetrics Dataclass**
+  - 15+ fields for comprehensive performance analysis
+  - Total trades, profitable trades, losing trades
+  - Win rate, profit factor
+  - Sharpe ratio, Sortino ratio
+  - Max drawdown (absolute and percentage)
+  - Average win, average loss
+  - Total profit, total loss
+  - Risk/reward ratio
+
+#### Testing Infrastructure (`tests/`)
+- **Unit Test Structure**
+  - `tests/unit/` directory created
+  - Test framework setup (pytest)
+  - Mock fixtures for MT5 API
+  - Sample test files for core modules
+
+- **Integration Test Structure**
+  - `tests/integration/` directory created
+  - End-to-end workflow tests
+  - Database integration tests
+  - MT5 connection tests
+
+#### Configuration
+- **Example Configuration** (`.env.example`, `config.example.yaml`)
+  - MT5 credentials template
+  - Risk parameters
+  - Trading configuration
+  - Logging settings
+  - Database configuration
+
+#### Documentation
+- **Build Plan** (`docs/build_plan.md`)
+  - Comprehensive 5-phase roadmap
+  - Phase 1 specifications and verification
+  - Phase 2-5 planning
+  - Architecture diagrams
+  - Data flow documentation
+  - Integration contracts
+
+- **Architecture Documentation** (`docs/ARCHITECTURE.md`)
+  - System architecture overview
+  - Component responsibilities
+  - Data flow diagrams
+  - Integration points
+  - Design patterns
+
+- **Guide** (`docs/GUIDE.md`)
+  - Getting started guide
+  - Installation instructions
+  - Configuration walkthrough
+  - Usage examples
+  - Best practices
+
+- **README** (`README.md`)
+  - Project overview
+  - Features list
+  - Quick start guide
+  - Architecture summary
+  - Development guidelines
+
+- **HTML Documentation** (`docs/index.html`)
+  - Interactive documentation website
+  - Feature showcase
+  - Code examples
+  - API reference
+  - Deployment guide
+
+#### Development Tools
+- **Requirements Files**
+  - `requirements.txt` - Production dependencies
+  - `requirements-dev.txt` - Development dependencies
+  - Version pinning for reproducibility
+
+- **Git Configuration**
+  - `.gitignore` - Comprehensive exclusion rules
+  - `.env.example` - Environment variable template
+  - Repository structure
+
+### Technical Specifications
+- **Python Version**: 3.10 - 3.13
+- **Key Dependencies**: 
+  - MetaTrader5 (MT5 API)
+  - pandas (data manipulation)
+  - numpy (numerical operations)
+  - sqlite3 (persistence)
+- **Database**: SQLite with full schema and indexes
+- **Logging**: Structured logging with JSON support
+- **Testing**: pytest framework with fixtures
+
+### Data Contracts
+- **Signal** → **OrderRequest** → **ExecutionResult** pipeline
+- **RiskLimits** enforcement at every stage
+- **TradeRecord** and **SignalRecord** for audit trail
+- **PerformanceMetrics** for real-time monitoring
+
+### Quality Standards
+- Single responsibility principle
+- Type hints throughout codebase
+- Comprehensive error handling
+- Structured logging
+- Dataclass contracts
+- Abstract base classes for extensibility
+- No circular dependencies
+
+---
+
+## [0.1.0] - 2024-10-01
+
+### Added - Initial Project Setup
+
+#### Project Initialization
+- Repository created with basic structure
+- Initial documentation framework
+- Development environment setup
+- Git repository initialized
+
+#### Foundation
+- Project name: Herald
+- Vision: Adaptive Trading Intelligence for MetaTrader 5
+- Core principles established
+- Phased development approach defined
+
+#### Documentation
+- Initial README with project vision
+- License file (MIT)
+- Contributing guidelines
+- Code of conduct
+
+---
+
+## Key Milestones Summary
+
+| Version | Date | Milestone | Lines of Code |
+|---------|------|-----------|---------------|
+| 0.1.0 | Oct 2024 | Project initialization | ~100 |
+| 1.0.0 | Nov 2024 | Phase 1: Foundation complete | ~2,500 |
+| 2.0.0 | Dec 2024 | Phase 2: Autonomous trading | ~6,630+ |
+
+---
+
+## Upcoming Phases
+
+### Phase 3 - Machine Learning Integration (Planned)
+- Offline model evaluation pipeline
+- Feature engineering from technical indicators
+- Model serving for inference
+- Training reproducibility and versioning
+- scikit-learn and PyTorch integration
+
+### Phase 4 - Advanced Intelligence (Planned)
+- Reinforcement learning experiments (DQN/PPO)
+- Sentiment and alternative data ingestion
+- Regime detection capabilities
+- Adaptive parameterization
+
+### Phase 5 - Production Features (Planned)
+- Automated backtesting pipeline
+- Real-time monitoring dashboard
+- Alerting system
+- Safe deployment automation (canary/staging)
+- Comprehensive audit reports
+
+---
+
+## Contributing
+
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for details on our development process, coding standards, and how to submit pull requests.
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
+
+---
+
+**Herald** - Adaptive Trading Intelligence  
+*Building the future of algorithmic trading, one phase at a time.*

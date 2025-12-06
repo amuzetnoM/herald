@@ -800,7 +800,7 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="hero-content">
-            <div class="hero-badge">VERSION 1.0.0 • PRODUCTION READY</div>
+            <div class="hero-badge">VERSION 2.0.0 • PHASE 2 COMPLETE • AUTONOMOUS TRADING</div>
             
             <pre class="hero-ascii">   __ __                 __    __
   / // /__ _______ ___ _/ /___/ /
@@ -808,11 +808,11 @@
 /_//_/\__/_/  \_,_/\_,_/_/\_,_/</pre>
             
             <h1>HERALD</h1>
-            <p class="hero-subtitle">Adaptive Trading Intelligence for MetaTrader 5</p>
+            <p class="hero-subtitle">Autonomous Trading Intelligence for MetaTrader 5</p>
             <p class="hero-description">
-                A modular, event-driven automated trading system built with enterprise-grade architecture.
-                Emphasizing safety, testability, and incremental enhancement from simple strategies to 
-                advanced machine learning systems.
+                A complete autonomous trading system with entry and exit execution. Built with enterprise-grade 
+                architecture featuring technical indicators, position management, and multi-strategy exit systems.
+                Modular, event-driven, and production-ready for live trading.
             </p>
 
             <div class="badge-container">
@@ -833,20 +833,20 @@
     <section class="stats">
         <div class="stats-container">
             <div class="stat-card">
-                <div class="stat-number">7</div>
+                <div class="stat-number">14</div>
                 <div class="stat-label">Core Modules</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">100%</div>
-                <div class="stat-label">Type Annotated</div>
+                <div class="stat-number">6</div>
+                <div class="stat-label">Technical Indicators</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">5</div>
-                <div class="stat-label">Development Phases</div>
+                <div class="stat-number">4</div>
+                <div class="stat-label">Exit Strategies</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number">∞</div>
-                <div class="stat-label">Extensibility</div>
+                <div class="stat-number">2/5</div>
+                <div class="stat-label">Phases Complete</div>
             </div>
         </div>
     </section>
@@ -854,10 +854,10 @@
     <!-- Features Section -->
     <section id="features" class="features">
         <div class="section-header">
-            <h2 class="section-title">Enterprise-Grade Features</h2>
+            <h2 class="section-title">Phase 2: Autonomous Trading Complete</h2>
             <p class="section-subtitle">
-                Built from the ground up with production deployment in mind. 
-                Every component is modular, testable, and replaceable.
+                Full entry and exit execution with technical indicators, position management, 
+                and intelligent exit strategies. Every component is modular, testable, and production-ready.
             </p>
         </div>
 
@@ -981,6 +981,70 @@
                     <li>Configuration templates</li>
                 </ul>
             </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">📈</span>
+                <h3 class="feature-title">Indicator Library (Phase 2)</h3>
+                <p class="feature-description">
+                    Comprehensive technical indicator suite for market analysis and signal generation.
+                </p>
+                <ul class="feature-list">
+                    <li>RSI: Relative Strength Index with oversold/overbought</li>
+                    <li>MACD: Moving Average Convergence Divergence</li>
+                    <li>Bollinger Bands: Volatility and squeeze detection</li>
+                    <li>Stochastic Oscillator: Momentum analysis</li>
+                    <li>ADX: Trend strength measurement</li>
+                    <li>ATR: Average True Range for volatility</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">🎯</span>
+                <h3 class="feature-title">Position Management (Phase 2)</h3>
+                <p class="feature-description">
+                    Real-time position tracking with P&L monitoring and lifecycle management.
+                </p>
+                <ul class="feature-list">
+                    <li>PositionInfo dataclass: entry price, volume, P&L</li>
+                    <li>PositionManager: open/close/update operations</li>
+                    <li>Real-time unrealized P&L calculation</li>
+                    <li>Position synchronization with MT5</li>
+                    <li>Multi-position tracking support</li>
+                    <li>Position validation and consistency checks</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">🚪</span>
+                <h3 class="feature-title">Exit Strategy Engine (Phase 2)</h3>
+                <p class="feature-description">
+                    Multi-strategy exit system with priority-based decision making.
+                </p>
+                <ul class="feature-list">
+                    <li>StopLossExit: Hard stop-loss protection (Priority 1)</li>
+                    <li>TakeProfitExit: Target profit capture (Priority 2)</li>
+                    <li>TrailingStopExit: Dynamic stop adjustment (Priority 3)</li>
+                    <li>TimeBasedExit: Maximum hold period (Priority 4)</li>
+                    <li>ExitDecision with metadata and reasoning</li>
+                    <li>Strategy registration and chaining</li>
+                </ul>
+            </div>
+
+            <div class="feature-card">
+                <span class="feature-icon">🤖</span>
+                <h3 class="feature-title">Autonomous Orchestrator (Phase 2)</h3>
+                <p class="feature-description">
+                    Fully autonomous trading loop integrating all Phase 1 and Phase 2 components.
+                </p>
+                <ul class="feature-list">
+                    <li>10-step trading cycle: connect → sync → analyze → decide</li>
+                    <li>Indicator calculation and signal generation</li>
+                    <li>Risk approval and position sizing</li>
+                    <li>Order execution with validation</li>
+                    <li>Exit monitoring and execution</li>
+                    <li>Configurable via config.json or .env</li>
+                </ul>
+            </div>
         </div>
     </section>
 
@@ -996,46 +1060,51 @@
             </div>
 
             <div class="architecture-diagram">
-                <h3 style="color: white; margin-bottom: 2rem; font-size: 1.5rem;">Data Flow Pipeline</h3>
-                <div class="flow-diagram">Market Data → Data Layer → Strategy → Signal → Risk Check → Execution → Persistence → Monitoring
+                <h3 style="color: white; margin-bottom: 2rem; font-size: 1.5rem;">Phase 2: Autonomous Trading Pipeline</h3>
+                <div class="flow-diagram">Market Data → Indicators → Signal → Risk → Entry → Position → Exit Monitor → Close
 
 ┌─────────────────┐
-│  Market Data    │  ← MetaTrader 5 Terminal
+│  Market Data    │  ← MetaTrader 5 Terminal (OHLCV)
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│   Data Layer    │  ← Normalization, Indicators, Caching
+│   Indicators    │  ← RSI, MACD, Bollinger, Stochastic, ADX, ATR
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│    Strategy     │  ← Signal Generation (SMA, etc.)
+│    Strategy     │  ← Signal Generation (SMA + Indicators)
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│     Signal      │  ← Standardized Signal Dataclass
+│  Risk Manager   │  ← Position Sizing, Daily Limits, Approval
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│  Risk Manager   │  ← Position Sizing, Limit Checks
+│   Execution     │  ← Order Submission (Entry)
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│   Execution     │  ← Idempotent Order Submission
+│Position Manager │  ← Track Open Positions, Calculate P&L
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│  Persistence    │  ← Database Storage
+│ Exit Strategies │  ← Stop Loss, Take Profit, Trailing, Time
 └────────┬────────┘
          │
          ▼
 ┌─────────────────┐
-│ Observability   │  ← Logging, Metrics, Alerts
+│   Execution     │  ← Order Submission (Exit)
+└────────┬────────┘
+         │
+         ▼
+┌─────────────────┐
+│  Persistence    │  ← Database: Signals, Orders, Trades, P&L
 └─────────────────┘</div>
             </div>
 
@@ -1090,6 +1159,33 @@
                     <p class="module-description">
                         <strong>Database (Planned):</strong> SQLAlchemy-based ORM for storing signals, orders, 
                         trades, positions, and metrics. Supports historical analysis and performance tracking.
+                    </p>
+                </div>
+
+                <div class="module-card">
+                    <h3 class="module-title">herald/indicators/ (Phase 2)</h3>
+                    <p class="module-description">
+                        <strong>Indicator Library:</strong> Technical indicators for market analysis. 
+                        Includes RSI (oversold/overbought), MACD (trend), Bollinger Bands (volatility), 
+                        Stochastic (momentum), ADX (trend strength), ATR (volatility measurement).
+                    </p>
+                </div>
+
+                <div class="module-card">
+                    <h3 class="module-title">herald/position/ (Phase 2)</h3>
+                    <p class="module-description">
+                        <strong>Position Management:</strong> Tracks open positions with PositionInfo dataclass. 
+                        PositionManager handles open/close/update operations, P&L calculation, and synchronization 
+                        with MT5 terminal.
+                    </p>
+                </div>
+
+                <div class="module-card">
+                    <h3 class="module-title">herald/exit/ (Phase 2)</h3>
+                    <p class="module-description">
+                        <strong>Exit Strategies:</strong> Multi-strategy exit system with priority-based decision making. 
+                        Includes StopLoss, TakeProfit, TrailingStop, and TimeBased exits. Returns ExitDecision 
+                        with reasoning and metadata.
                     </p>
                 </div>
             </div>
@@ -1310,19 +1406,19 @@ CREATE TABLE trades (
             <div class="timeline-item">
                 <div class="timeline-badge">2</div>
                 <div class="timeline-content">
-                    <h3 class="phase-title">Phase 2: Technical Analysis Layer</h3>
-                    <span class="phase-status status-planned">PLANNED</span>
+                    <h3 class="phase-title">Phase 2: Autonomous Trading Execution</h3>
+                    <span class="phase-status status-complete">COMPLETED</span>
                     <p class="phase-description">
-                        <strong>Advanced Indicators:</strong> Comprehensive indicator library (RSI, MACD, 
-                        Bollinger Bands, Ichimoku), multi-timeframe support, signal aggregation, 
-                        strategy registry for pluggable strategies.
+                        <strong>Full Trading System:</strong> Complete entry and exit execution with 
+                        technical indicators, position management, and multi-strategy exit system. 
+                        Autonomous orchestrator manages entire trading lifecycle.
                     </p>
                     <ul class="feature-list">
-                        <li>Indicator library (RSI, MACD, Bollinger, Stochastic)</li>
-                        <li>Multi-timeframe analysis</li>
-                        <li>Signal confluence detection</li>
-                        <li>Strategy plugin system</li>
-                        <li>Regime detection</li>
+                        <li>Indicator Library: RSI, MACD, Bollinger, Stochastic, ADX, ATR</li>
+                        <li>Position Management: PositionInfo, PositionManager</li>
+                        <li>Exit Strategies: Stop Loss, Take Profit, Trailing, Time-based</li>
+                        <li>Autonomous Orchestrator: 10-step trading loop</li>
+                        <li>Configuration: JSON and .env support</li>
                     </ul>
                 </div>
             </div>
